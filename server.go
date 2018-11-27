@@ -654,6 +654,8 @@ func (srv *Server) serveDNS(w *response) {
 	if srv.PassFunc != nil {
 		if rcode, ok := srv.PassFunc(dh); !ok {
 			req.SetRcode(req, rcode)
+			// Are we allowed to delete any OPT records here.
+			req.Ns, req.Answer, req.Extra = nil, nil, nil
 			w.WriteMsg(req)
 			srv.disposeBuffer(w)
 			return
@@ -662,6 +664,7 @@ func (srv *Server) serveDNS(w *response) {
 
 	if err := req.unpack(dh, w.msg, off); err != nil {
 		req.SetRcodeFormatError(req)
+		req.Ns, req.Answer, req.Extra = nil, nil, nil
 		w.WriteMsg(req)
 		srv.disposeBuffer(w)
 		return
