@@ -214,8 +214,6 @@ type Server struct {
 	// Whether to set the SO_REUSEPORT socket option, allowing multiple listeners to be bound to a single address.
 	// It is only supported on go1.11+ and when using ListenAndServe.
 	ReusePort bool
-	// Unsafe is deprecated.
-	Unsafe bool
 	// PassFunc will check the incoming message (usually a normal DNS request) and will reject it early in the process
 	// when malformed
 	PassFunc PassFunc
