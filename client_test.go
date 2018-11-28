@@ -373,12 +373,12 @@ func TestTruncatedMsg(t *testing.T) {
 	m.Truncated = true
 	buf, err = m.Pack()
 	if err != nil {
-		t.Errorf("failed to pack truncated message: %v", err)
+		t.Errorf("failed to pack truncated: %v", err)
 	}
 
 	r = new(Msg)
-	if err = r.Unpack(buf); err != nil {
-		t.Errorf("failed to unpack truncated message: %v", err)
+	if err = r.Unpack(buf); err != nil && err != ErrTruncated {
+		t.Errorf("unable to unpack truncated message: %v", err)
 	}
 	if !r.Truncated {
 		t.Errorf("truncated message wasn't unpacked as truncated")
@@ -407,10 +407,9 @@ func TestTruncatedMsg(t *testing.T) {
 	buf1 = buf[:len(buf)-off]
 
 	r = new(Msg)
-	if err = r.Unpack(buf1); err == nil {
-		t.Error("cutoff message should have failed to unpack")
+	if err = r.Unpack(buf1); err != nil && err != ErrTruncated {
+		t.Errorf("unable to unpack cutoff message: %v", err)
 	}
-	// r's header might be still usable.
 	if !r.Truncated {
 		t.Error("truncated cutoff message wasn't unpacked as truncated")
 	}
@@ -439,8 +438,8 @@ func TestTruncatedMsg(t *testing.T) {
 	buf1 = buf[:len(buf)-off]
 
 	r = new(Msg)
-	if err = r.Unpack(buf1); err == nil {
-		t.Error("cutoff message should have failed to unpack")
+	if err = r.Unpack(buf1); err != nil && err != ErrTruncated {
+		t.Errorf("unable to unpack cutoff message: %v", err)
 	}
 	if !r.Truncated {
 		t.Error("truncated cutoff message wasn't unpacked as truncated")
@@ -455,8 +454,8 @@ func TestTruncatedMsg(t *testing.T) {
 
 	r = new(Msg)
 	err = r.Unpack(buf1)
-	if err == nil {
-		t.Errorf("error should be nil after question cutoff unpack: %v", err)
+	if err == nil || err == ErrTruncated {
+		t.Errorf("error should not be ErrTruncated from question cutoff unpack: %v", err)
 	}
 
 	// Finally, if we only have the header, we don't return an error.
